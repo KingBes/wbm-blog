@@ -1,0 +1,16 @@
+{
+    "name": "kmin/wbm-blog",
+    "description": "歪布满webman博客,应用插件.",
+    "type": "library",
+    "require": {
+        "php": ">=8.2",
+        "kmin/template": "*",
+        "kmin/kmui": "*"
+    },
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Kmin\\WbmBlog\\": "src/"
+        }
+    }
+}

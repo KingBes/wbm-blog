@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DocHub | 由现代技术驱动的文档平台</title>
+    <style>
+        /* 基础重置 - 彻底消除默认样式导致的偏移 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Inter", "SF Pro Display", "PingFang SC", "Microsoft YaHei", sans-serif;
+        }
+
+        /* 核心CSS变量 - 统一规范 */
+        html {
+            /* 颜色体系 - 中性高级灰 */
+            --default: #3e3b3b;
+            --default-middle: #4e4c4b;
+            --default-shallow: #727171;
+            --default-light: #f7f7f7;
+            --default-xlight: #fafafa;
+            --accent-light: rgba(90, 87, 87, 0.1);
+            --gradient: linear-gradient(135deg, var(--default) 0%, var(--default-middle) 100%);
+            
+            /* 字体层级 - 统一比例 */
+            --font-xs: 12px;
+            --font-sm: 14px;
+            --font-md: 16px;
+            --font-lg: 18px;
+            --font-xl: 28px;
+            --font-2xl: 42px;
+            
+            /* 间距系统 - 彻底消除偏移核心 */
+            --space-0: 0;
+            --space-xs: 8px;
+            --space-sm: 16px;
+            --space-md: 24px;
+            --space-lg: 32px;
+            --space-xl: 48px;
+            --space-2xl: 64px;
+            
+            /* 圆角与阴影 */
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-full: 9999px;
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+            --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.06);
+            
+            /* 动效系统 */
+            --transition-normal: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --clip-x: 50%;
+            --clip-y: 50%;
+            --clip-r: 150vh;
+
+            scroll-behavior: smooth;
+            background-color: var(--default-xlight);
+            color: var(--default);
+            line-height: 1.5;
+        }
+
+        /* 暗黑模式 */
+        html.dark {
+            --default-xlight: #121212;
+            --default-light: #1e1e1e;
+            --default: #e0e0e0;
+            --default-middle: #b3b3b3;
+            --default-shallow: #8a8a8a;
+            --accent-light: rgba(120, 117, 117, 0.2);
+        }
+
+        /* 视图过渡动画 */
+        ::view-transition-old(*) { animation: none; }
+        ::view-transition-new(*) { animation: clipReveal 0.4s ease; }
+        ::view-transition-old(root) { z-index: 1; }
+        ::view-transition-new(root) { z-index: 9999; }
+
+        html.dark::view-transition-old(*) { animation: clipReveal 0.4s ease reverse; }
+        html.dark::view-transition-new(*) { animation: none; }
+        html.dark::view-transition-old(root) { z-index: 9999; }
+        html.dark::view-transition-new(root) { z-index: 1; }
+
+        @keyframes clipReveal {
+            from { clip-path: circle(0% at var(--clip-x) var(--clip-y)); }
+            to { clip-path: circle(var(--clip-r) at var(--clip-x) var(--clip-y)); }
+        }
+
+        /* 全局通用样式 - 统一对齐和容器 */
+        a {
+            text-decoration: none;
+            color: inherit;
+            transition: var(--transition-normal);
+        }
+
+        /* 核心容器 - 彻底解决偏移，统一居中 */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 var(--space-md);
+            width: 100%;
+        }
+
+        /* 顶部导航 - 精准对齐，无偏移 */
+        .header {
+            padding: var(--space-md) 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            background-color: var(--default-xlight);
+            z-index: 100;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.02);
+        }
+
+        .header-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: var(--space-xs);
+            font-size: var(--font-lg);
+            font-weight: 700;
+            color: var(--default);
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--gradient);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+        }
+
+        .header-nav {
+            display: flex;
+            align-items: center;
+            gap: var(--space-lg);
+        }
+
+        .nav-link {
+            font-size: var(--font-sm);
+            color: var(--default-shallow);
+            padding: var(--space-xs) 0;
+            position: relative;
+        }
+
+        .nav-link:hover {
+            color: var(--default);
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--gradient);
+            transition: var(--transition-normal);
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+
+        /* 搜索框 - 精准定位，无偏移 */
+        .search-box {
+            position: relative;
+            width: 200px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: var(--space-xs) var(--space-sm) var(--space-xs) var(--space-lg);
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            border-radius: var(--radius-full);
+            background-color: var(--default-light);
+            color: var(--default);
+            font-size: var(--font-sm);
+            outline: none;
+            transition: var(--transition-normal);
+        }
+
+        .search-input:focus {
+            border-color: var(--default-middle);
+            box-shadow: var(--shadow-sm);
+            width: 240px;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: var(--space-xs);
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--default-shallow);
+            font-size: 14px;
+        }
+
+        /* 主题切换 + 版本选择 - 精准对齐 */
+        .version-select {
+            padding: var(--space-xs) var(--space-sm);
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            border-radius: var(--radius-sm);
+            background-color: var(--default-light);
+            color: var(--default);
+            font-size: var(--font-xs);
+            outline: none;
+            cursor: pointer;
+        }
+
+        .theme-toggle {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: none;
+            background-color: var(--default-light);
+            color: var(--default);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition-normal);
+        }
+
+        .theme-toggle:hover {
+            background-color: var(--accent-light);
+            transform: scale(1.08);
+        }
+
+        /* 英雄区 - 彻底修复偏移，精准居中 */
+        .hero {
+            padding: var(--space-xl) 0 var(--space-2xl);
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: center;
+            min-height: 60vh;
+        }
+
+        .hero-inner {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: var(--space-xl);
+            align-items: center;
+            width: 100%;
+        }
+
+        .hero-content {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-lg);
+            align-items: flex-start;
+        }
+
+        .hero-title {
+            font-size: var(--font-2xl);
+            font-weight: 800;
+            line-height: 1.2;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin: 0;
+        }
+
+        .hero-subtitle {
+            font-size: var(--font-lg);
+            color: var(--default-shallow);
+            max-width: 500px;
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: var(--space-sm);
+            flex-wrap: wrap;
+        }
+
+        /* 按钮 - 统一尺寸，无偏移 */
+        .btn {
+            padding: var(--space-sm) var(--space-lg);
+            border-radius: var(--radius-sm);
+            font-size: var(--font-md);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition-normal);
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-xs);
+        }
+
+        .btn-primary {
+            background: var(--gradient);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background-color: var(--default-light);
+            color: var(--default);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--accent-light);
+            box-shadow: var(--shadow-sm);
+            transform: translateY(-2px);
+        }
+
+        /* 英雄视觉图形 - 精准定位，无偏移 */
+        .hero-visual {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+        }
+
+        .visual-card {
+            width: 300px;
+            height: 380px;
+            background: var(--gradient);
+            border-radius: var(--radius-md);
+            position: relative;
+            transform: perspective(1000px) rotateY(-8deg) rotateX(4deg);
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+        }
+
+        .visual-card-inner {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            padding: var(--space-lg);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-md);
+        }
+
+        .visual-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .visual-card-dots {
+            display: flex;
+            gap: 6px;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: rgba(255,255,255,0.6);
+        }
+
+        .visual-card-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-md);
+            padding-top: var(--space-md);
+        }
+
+        .visual-card-line {
+            height: 8px;
+            width: 100%;
+            background-color: rgba(255,255,255,0.3);
+            border-radius: var(--radius-full);
+        }
+
+        .visual-card-line.short {
+            width: 60%;
+        }
+
+        .visual-card-line.medium {
+            width: 80%;
+        }
+
+        /* 特性区 - 网格精准对齐，彻底消除偏移 */
+        .features {
+            padding: var(--space-xl) 0 var(--space-2xl);
+            width: 100%;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--space-md);
+            width: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        .feature-card {
+            padding: var(--space-lg);
+            background-color: var(--default-light);
+            border-radius: var(--radius-md);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            transition: var(--transition-normal);
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-sm);
+            height: 100%;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-6px);
+            box-shadow: var(--shadow-md);
+            border-color: rgba(0, 0, 0, 0.08);
+        }
+
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--accent-light);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--default);
+            font-size: 20px;
+        }
+
+        .feature-title {
+            font-size: var(--font-lg);
+            font-weight: 600;
+            color: var(--default);
+            margin: 0;
+        }
+
+        .feature-desc {
+            font-size: var(--font-sm);
+            color: var(--default-shallow);
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        /* 页脚 - 精准对齐，无偏移 */
+        .footer {
+            padding: var(--space-lg) 0 var(--space-md);
+            border-top: 1px solid rgba(0, 0, 0, 0.04);
+            width: 100%;
+        }
+
+        .footer-inner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: var(--font-xs);
+            color: var(--default-shallow);
+            width: 100%;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: var(--space-md);
+        }
+
+        .footer-link:hover {
+            color: var(--default);
+            text-decoration: underline;
+        }
+
+        /* 响应式设计 - 全终端无偏移 */
+        @media (max-width: 1024px) {
+            .hero-inner {
+                grid-template-columns: 1fr;
+                gap: var(--space-xl);
+            }
+            
+            .hero-content {
+                align-items: flex-start;
+                text-align: left;
+            }
+            
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .visual-card {
+                margin: 0 auto;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header-nav {
+                display: none;
+            }
+            
+            .search-box {
+                width: 160px;
+            }
+            
+            .search-input:focus {
+                width: 200px;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .hero-title {
+                font-size: var(--font-xl);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header-actions .search-box {
+                display: none;
+            }
+            
+            .hero {
+                min-height: auto;
+                padding: var(--space-lg) 0 var(--space-xl);
+            }
+            
+            .hero-actions {
+                width: 100%;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .visual-card {
+                width: 260px;
+                height: 340px;
+            }
+            
+            .footer-inner {
+                flex-direction: column;
+                gap: var(--space-xs);
+                text-align: center;
+            }
+        }
+
+        /* 滚动动效 - 无偏移渐进显示 */
+        .reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航 - 无偏移结构 -->
+    <header class="header">
+        <div class="container">
+            <div class="header-inner">
+                <a href="#" class="logo">
+                    <div class="logo-icon">📄</div>
+                    <span>DocHub</span>
+                </a>
+                
+                <div class="header-nav">
+                    <a href="#" class="nav-link">指南</a>
+                    <a href="#" class="nav-link">参考</a>
+                    <a href="#" class="nav-link">示例</a>
+                    <a href="#" class="nav-link">生态</a>
+                </div>
+                
+                <div class="header-actions">
+                    <div class="search-box">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" class="search-input" placeholder="搜索文档...">
+                    </div>
+                    <select class="version-select">
+                        <option>2.0.0-alpha.15</option>
+                        <option>1.9.8</option>
+                        <option>1.8.0</option>
+                    </select>
+                    <button class="theme-toggle" id="themeToggle">🌙</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 英雄区 - 修复偏移核心区域 -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-inner">
+                <div class="hero-content reveal">
+                    <h1 class="hero-title">
+                        由现代技术驱动的<br>静态文档站点生成器
+                    </h1>
+                    <p class="hero-subtitle">
+                        只需Markdown即可创建优雅、高性能的文档站点，
+                        基于最新的前端技术构建，几分钟内完成部署。
+                    </p>
+                    <div class="hero-actions">
+                        <button class="btn btn-primary">
+                            快速开始 →
+                        </button>
+                        <button class="btn btn-secondary">
+                            GitHub
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="hero-visual reveal">
+                    <div class="visual-card">
+                        <div class="visual-card-inner">
+                            <div class="visual-card-header">
+                                <div class="visual-card-dots">
+                                    <div class="dot"></div>
+                                    <div class="dot"></div>
+                                    <div class="dot"></div>
+                                </div>
+                                <span>DocHub</span>
+                            </div>
+                            <div class="visual-card-content">
+                                <div class="visual-card-line"></div>
+                                <div class="visual-card-line short"></div>
+                                <div class="visual-card-line medium"></div>
+                                <div class="visual-card-line"></div>
+                                <div class="visual-card-line short"></div>
+                                <div class="visual-card-line"></div>
+                                <div class="visual-card-line medium"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 特性区 - 网格精准对齐 -->
+    <section class="features">
+        <div class="container">
+            <div class="features-grid">
+                <div class="feature-card reveal">
+                    <div class="feature-icon">✏️</div>
+                    <h3 class="feature-title">专注内容</h3>
+                    <p class="feature-desc">
+                        只需Markdown即可轻松创建美观的文档站点，无需关注复杂的样式和布局，专注于内容创作。
+                    </p>
+                </div>
+                <div class="feature-card reveal">
+                    <div class="feature-icon">⚡</div>
+                    <h3 class="feature-title">极致性能</h3>
+                    <p class="feature-desc">
+                        服务器即时启动，闪电般的热更新，静态HTML实现极速的页面初次加载，客户端路由实现快速切换。
+                    </p>
+                </div>
+                <div class="feature-card reveal">
+                    <div class="feature-icon">🎨</div>
+                    <h3 class="feature-title">高度自定义</h3>
+                    <p class="feature-desc">
+                        直接在Markdown中使用组件语法，或使用自定义主题系统，完全掌控站点的视觉风格和交互体验。
+                    </p>
+                </div>
+                <div class="feature-card reveal">
+                    <div class="feature-icon">🌍</div>
+                    <h3 class="feature-title">多端适配</h3>
+                    <p class="feature-desc">
+                        自动适配桌面、平板、手机等所有设备，响应式布局确保在任何终端都有最佳的阅读体验。
+                    </p>
+                </div>
+                <div class="feature-card reveal">
+                    <div class="feature-icon">🌙</div>
+                    <h3 class="feature-title">暗黑模式</h3>
+                    <p class="feature-desc">
+                        内置完善的暗黑模式支持，一键切换，智能适配系统主题，保护视力，提升夜间阅读体验。
+                    </p>
+                </div>
+                <div class="feature-card reveal">
+                    <div class="feature-icon">🚀</div>
+                    <h3 class="feature-title">轻松部署</h3>
+                    <p class="feature-desc">
+                        生成纯静态文件，可部署到任何静态托管服务，支持CI/CD自动化部署，无需复杂的服务器配置。
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页脚 - 精准对齐 -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-inner">
+                <div class="copyright">
+                    基于 MIT 许可发布 © 2025 DocHub
+                </div>
+                <div class="footer-links">
+                    <a href="#" class="footer-link">隐私政策</a>
+                    <a href="#" class="footer-link">使用条款</a>
+                    <a href="#" class="footer-link">联系我们</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 1. 暗黑模式切换
+        const themeToggle = document.getElementById('themeToggle');
+        const html = document.documentElement;
+        let isDark = localStorage.getItem('darkMode') === 'true';
+
+        if (isDark) {
+            html.classList.add('dark');
+            themeToggle.textContent = '☀️';
+        } else {
+            themeToggle.textContent = '🌙';
+        }
+
+        themeToggle.addEventListener('click', function(e) {
+            const x = e.clientX;
+            const y = e.clientY;
+            const r = Math.hypot(
+                Math.max(x, window.innerWidth - x),
+                Math.max(y, window.innerHeight - y)
+            );
+
+            html.style.setProperty('--clip-x', `${x}px`);
+            html.style.setProperty('--clip-y', `${y}px`);
+            html.style.setProperty('--clip-r', `${r}px`);
+
+            document.startViewTransition(() => {
+                isDark = !isDark;
+                html.classList.toggle('dark', isDark);
+                themeToggle.textContent = isDark ? '☀️' : '🌙';
+                localStorage.setItem('darkMode', isDark);
+            });
+        });
+
+        // 2. 滚动渐进显示 - 无偏移动画
+        function revealOnScroll() {
+            const reveals = document.querySelectorAll('.reveal');
+            
+            reveals.forEach(element => {
+                const windowHeight = window.innerHeight;
+                const elementTop = element.getBoundingClientRect().top;
+                const elementVisible = 100;
+
+                if (elementTop < windowHeight - elementVisible) {
+                    element.classList.add('active');
+                }
+            });
+        }
+
+        revealOnScroll();
+        window.addEventListener('scroll', revealOnScroll);
+
+        // 3. 搜索框优化
+        const searchInput = document.querySelector('.search-input');
+        if (searchInput) {
+            searchInput.addEventListener('focus', function() {
+                this.placeholder = '搜索文档、API、教程...';
+            });
+            searchInput.addEventListener('blur', function() {
+                this.placeholder = '搜索文档...';
+            });
+        }
+    </script>
+</body>
+</html>

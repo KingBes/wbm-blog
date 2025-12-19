@@ -1,0 +1,6 @@
+.git
+.vscode
+.idea
+vendor
+composer.lock
+/test/cache
