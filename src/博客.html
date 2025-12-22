@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>极简博客 | 分享思考与成长</title>
+    <style>
+        /* 基础变量（已提供） */
+        html {
+            /* 颜色 */
+            --default: #3e3b3b;
+            --default-middle: #4e4c4b;
+            --default-shallow: #727171;
+            --green: #179451;
+            --green-middle: #48be7f;
+            --green-shallow: #d9ece1;
+            --blue: #1d42e9;
+            --blue-middle: #506ef5;
+            --blue-shallow: #8dbbe6;
+            --yellow: #f08b08;
+            --yellow-middle: #da9d1b;
+            --yellow-shallow: #ecd8ba;
+            --red: #f84d4d;
+            --red-middle: #f75f5f;
+            --red-shallow: #ebbaba;
+            --gray: #81848a;
+            --gray-middle: #a8aab2;
+            --gray-shallow: #e0e0e0;
+            --white: #f5f5f5;
+            --black: #2b2f2b;
+            --white-common: #f5f5f5;
+            --black-common: #2b2f2b;
+            --overlay: rgba(245, 245, 245, 0.8); /* 毛玻璃遮罩 */
+            --dark-overlay: rgba(43, 47, 43, 0.8); /* 暗黑模式毛玻璃 */
+
+            /* 字体大小 */
+            --font-size: 14px;
+            --font-size-16: 16px;
+            --font-size-18: 18px;
+            --font-size-20: 20px;
+            --font-size-24: 24px;
+            --font-size-32: 32px;
+
+            /* 圆角 */
+            --border-radius: 4px;
+            --border-radius-8: 8px;
+            --border-radius-15: 15px;
+            --border-radius-full: 50%;
+
+            /* 动态 */
+            --transition: all 235ms ease 0s;
+            --transform3d-200: translate3d(2px, 0, 0);
+            --transform3d-500: translate3d(5px, 0, 0);
+            --transform3d-020: translate3d(0, 2px, 0);
+            --transform3d-050: translate3d(0, 5px, 0);
+            --transform3d-002: translate3d(0, 0, 2px);
+            --transform3d-005: translate3d(0, 0, 5px);
+            --scale-hover: scale(1.01); /* 新增：hover缩放 */
+
+            /* 影子 */
+            --box-shadow-005: 0 0 5px rgba(0, 0, 0, 0.08); /* 更柔和的阴影 */
+            --box-shadow-055: 0 5px 15px rgba(0, 0, 0, 0.1);
+            --box-shadow-hover-005: 0 0 8px rgba(0, 0, 0, 0.12);
+            --box-shadow-hover-055: 0 8px 20px rgba(0, 0, 0, 0.15);
+            
+            /* 平滑滚动 */
+            scroll-behavior: smooth;
+        }
+
+        /* 视图过渡动画 */
+        ::view-transition-old(*) {
+            animation: none;
+        }
+        ::view-transition-new(*) {
+            animation: clip 235ms ease-in;
+        }
+        ::view-transition-old(root) {
+            z-index: 1;
+        }
+        ::view-transition-new(root) {
+            z-index: 9999;
+        }
+        html.dark {
+            --white: #2b2f2b;
+            --black: #f5f5f5;
+            --overlay: var(--dark-overlay);
+            --gray-shallow: #3a3e3a; /* 暗黑模式浅灰调整 */
+        }
+        html.dark::view-transition-old(*) {
+            animation: clip 235ms ease-in reverse;
+        }
+        html.dark::view-transition-new(*) {
+            animation: none;
+        }
+        html.dark::view-transition-old(root) {
+            z-index: 9999;
+        }
+        html.dark::view-transition-new(root) {
+            z-index: 1;
+        }
+        @keyframes clip {
+            from {
+                clip-path: circle(0% at var(--x) var(--y));
+            }
+            to {
+                clip-path: circle(var(--r) at var(--x) var(--y));
+            }
+        }
+
+        /* 新增：页面淡入动画 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 基础样式 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            text-decoration: none;
+            list-style: none;
+        }
+        html,
+        body {
+            font-size: var(--font-size);
+            background-color: var(--white);
+            color: var(--black);
+            min-height: 100vh;
+            margin: 0 auto;
+            font-weight: 400;
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.7; /* 更舒适的行高 */
+            transition: var(--transition);
+            max-width: 1200px;
+            padding: 0 16px;
+            animation: fadeIn 0.5s ease-out; /* 页面加载淡入 */
+        }
+
+        /* 导航栏 */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px 0; /* 调整padding更现代 */
+            margin-bottom: 48px;
+            border-bottom: 1px solid var(--gray-shallow);
+            position: sticky; /* 粘性导航 */
+            top: 0;
+            background: var(--overlay);
+            backdrop-filter: blur(8px); /* 毛玻璃效果 */
+            z-index: 100;
+            border-radius: 0 0 var(--border-radius-8) var(--border-radius-8);
+            padding: 16px 20px;
+            margin: 0 -16px 48px -16px;
+            padding-left: calc(16px + 20px);
+            padding-right: calc(16px + 20px);
+        }
+        .logo {
+            font-size: var(--font-size-24);
+            font-weight: 700; /* 加粗更醒目 */
+            background: linear-gradient(120deg, var(--default), var(--default-middle)); /* 渐变文字 */
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            transition: var(--transition);
+            letter-spacing: -0.5px; /* 细微字距调整 */
+        }
+        .logo:hover {
+            transform: var(--transform3d-200) scale(1.02); /* 组合变换 */
+        }
+        .nav-links {
+            display: flex;
+            gap: 32px; /* 更宽松的间距 */
+        }
+        .nav-link {
+            font-size: var(--font-size-16);
+            color: var(--black);
+            transition: var(--transition);
+            position: relative;
+            font-weight: 500; /* 中等字重 */
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -6px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--default), var(--default-shallow)); /* 渐变下划线 */
+            border-radius: var(--border-radius);
+            transition: width 0.3s ease; /* 单独控制宽度过渡 */
+        }
+        .nav-link:hover {
+            color: var(--default);
+        }
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        .theme-toggle {
+            background: var(--white);
+            border: 1px solid var(--gray-shallow);
+            font-size: var(--font-size-18);
+            color: var(--black);
+            cursor: pointer;
+            transition: var(--transition);
+            padding: 8px 12px; /* 更大的点击区域 */
+            border-radius: var(--border-radius-full); /* 圆形按钮 */
+            box-shadow: var(--box-shadow-005);
+        }
+        .theme-toggle:hover {
+            background-color: var(--gray-shallow);
+            transform: var(--transform3d-002) rotate(15deg) scale(1.05); /* 旋转+缩放 */
+            box-shadow: var(--box-shadow-hover-005);
+        }
+
+        /* 英雄区 */
+        .hero {
+            text-align: center;
+            margin-bottom: 72px; /* 更大的间距 */
+            padding: 32px 0;
+        }
+        .hero-title {
+            font-size: clamp(var(--font-size-32), 5vw, 48px); /* 响应式字号 */
+            margin-bottom: 20px;
+            color: var(--black);
+            font-weight: 800;
+            letter-spacing: -1px;
+            background: linear-gradient(135deg, var(--default), var(--default-middle));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .hero-subtitle {
+            font-size: var(--font-size-18);
+            color: var(--default-shallow);
+            max-width: 700px;
+            margin: 0 auto;
+            line-height: 1.8;
+        }
+
+        /* 主内容区 */
+        .main-container {
+            display: grid;
+            grid-template-columns: 3fr 1fr;
+            gap: 48px; /* 更大的间距 */
+            margin-bottom: 72px;
+        }
+
+        /* 博客列表 */
+        .blog-list {
+            display: flex;
+            flex-direction: column;
+            gap: 36px;
+        }
+        .blog-card {
+            padding: 32px; /* 更充足的内边距 */
+            border-radius: var(--border-radius-15); /* 更大的圆角 */
+            background-color: var(--white);
+            box-shadow: var(--box-shadow-005);
+            transition: var(--transition);
+            border: 1px solid transparent; /* 透明边框防止抖动 */
+        }
+        .blog-card:hover {
+            transform: var(--transform3d-020) var(--scale-hover); /* 位移+缩放 */
+            box-shadow: var(--box-shadow-hover-055);
+            border-color: var(--gray-shallow); /* hover显示边框 */
+        }
+        .blog-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            font-size: var(--font-size);
+            color: var(--gray);
+        }
+        /* 多标签样式（核心修改：非椭圆形） */
+        .blog-category {
+            padding: 3px 10px; /* 调整内边距 */
+            border-radius: var(--border-radius); /* 小圆角（非椭圆） */
+            font-size: 12px;
+            font-weight: 500;
+            position: relative;
+            display: inline-block;
+            /* 多标签装饰：左侧小三角 */
+            &::before {
+                content: '';
+                position: absolute;
+                left: -6px;
+                top: 50%;
+                transform: translateY(-50%);
+                width: 0;
+                height: 0;
+                border-top: 6px solid transparent;
+                border-bottom: 6px solid transparent;
+            }
+        }
+        /* 不同分类标签的多标签配色（保留差异化） */
+        .category-front {
+            background-color: var(--green-shallow);
+            color: var(--green);
+            border: 1px solid var(--green);
+            &::before {
+                border-right: 6px solid var(--green);
+            }
+        }
+        .category-back {
+            background-color: var(--blue-shallow);
+            color: var(--blue);
+            border: 1px solid var(--blue);
+            &::before {
+                border-right: 6px solid var(--blue);
+            }
+        }
+        .category-growth {
+            background-color: var(--yellow-shallow);
+            color: var(--yellow);
+            border: 1px solid var(--yellow);
+            &::before {
+                border-right: 6px solid var(--yellow);
+            }
+        }
+        .blog-title {
+            font-size: var(--font-size-20);
+            margin-bottom: 16px;
+            color: var(--black);
+            transition: var(--transition);
+            font-weight: 600;
+            letter-spacing: -0.3px;
+        }
+        .blog-title a {
+            color: inherit;
+        }
+        .blog-title:hover {
+            color: var(--default);
+        }
+        .blog-excerpt {
+            color: var(--default-shallow);
+            margin-bottom: 24px;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .blog-read-more {
+            color: var(--default);
+            font-size: var(--font-size-16);
+            font-weight: 500;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .blog-read-more:hover {
+            transform: var(--transform3d-500);
+            color: var(--default-middle);
+        }
+        .blog-read-more::after {
+            content: '→';
+            transition: var(--transition);
+        }
+        .blog-read-more:hover::after {
+            transform: translateX(3px);
+        }
+
+        /* 侧边栏 */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 36px;
+        }
+        .sidebar-card {
+            padding: 24px;
+            border-radius: var(--border-radius-15);
+            background: var(--overlay);
+            backdrop-filter: blur(8px); /* 毛玻璃效果 */
+            box-shadow: var(--box-shadow-005);
+            border: 1px solid var(--gray-shallow);
+        }
+        .sidebar-title {
+            font-size: var(--font-size-18);
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--gray-shallow);
+            color: var(--black);
+            font-weight: 600;
+        }
+        .category-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px; /* 更大的间距 */
+        }
+        .category-item {
+            color: var(--default);
+            transition: var(--transition);
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 8px;
+            border-radius: var(--border-radius-8);
+        }
+        .category-item:hover {
+            color: var(--default-middle);
+            transform: var(--transform3d-200) scale(1.02); /* 位移+缩放 */
+            background-color: var(--gray-shallow);
+            padding-left: 12px; /* 轻微缩进 */
+        }
+        .category-count {
+            color: var(--gray);
+            font-size: var(--font-size);
+            background-color: var(--white);
+            padding: 2px 8px;
+            border-radius: var(--border-radius); /* 小圆角（非椭圆） */
+            border: 1px solid var(--gray-shallow);
+        }
+        .author-card {
+            text-align: center;
+        }
+        .author-avatar {
+            width: 90px;
+            height: 90px;
+            border-radius: var(--border-radius-full);
+            background: linear-gradient(135deg, var(--default-shallow), var(--default-middle));
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-size: var(--font-size-24);
+            box-shadow: var(--box-shadow-055);
+            transition: var(--transition);
+        }
+        .author-avatar:hover {
+            transform: rotate(5deg) scale(1.05); /* 旋转+缩放 */
+        }
+        .author-name {
+            font-size: var(--font-size-18);
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+        .author-bio {
+            color: var(--gray);
+            font-size: var(--font-size);
+            line-height: 1.6;
+        }
+
+        /* 页脚 */
+        .footer {
+            text-align: center;
+            padding: 40px 0;
+            border-top: 1px solid var(--gray-shallow);
+            margin-top: 72px;
+            background: var(--overlay);
+            backdrop-filter: blur(8px);
+            border-radius: var(--border-radius-8) var(--border-radius-8) 0 0;
+            margin: 72px -16px 0 -16px;
+            padding-left: 16px;
+            padding-right: 16px;
+        }
+        .footer-text {
+            color: var(--gray);
+            font-size: var(--font-size);
+            margin-bottom: 20px;
+        }
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            margin-top: 16px;
+        }
+        .footer-link {
+            color: var(--gray);
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .footer-link:hover {
+            color: var(--default);
+            transform: translateY(-2px); /* 轻微上浮 */
+        }
+
+        /* 响应式设计（更精细的适配） */
+        @media (max-width: 768px) {
+            .main-container {
+                grid-template-columns: 1fr;
+                gap: 32px;
+            }
+            .navbar {
+                flex-direction: column;
+                gap: 16px;
+                align-items: flex-start;
+                padding: 16px;
+            }
+            .nav-links {
+                width: 100%;
+                justify-content: space-between;
+                gap: 16px;
+            }
+            .hero-title {
+                font-size: clamp(var(--font-size-24), 4vw, var(--font-size-32));
+            }
+            .hero-subtitle {
+                font-size: var(--font-size-16);
+            }
+            .blog-card {
+                padding: 24px;
+            }
+            .sidebar-card {
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .navbar {
+                padding: 12px;
+            }
+            .nav-links {
+                gap: 8px;
+            }
+            .hero {
+                padding: 16px 0;
+                margin-bottom: 48px;
+            }
+            .blog-card {
+                padding: 16px;
+            }
+            /* 移动端简化标签装饰 */
+            .blog-category::before {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <a href="#" class="logo">极简博客</a>
+        <div class="nav-links">
+            <a href="#" class="nav-link">首页</a>
+            <a href="#" class="nav-link">分类</a>
+            <a href="#" class="nav-link">关于</a>
+        </div>
+        <button class="theme-toggle" id="themeToggle">🌙</button>
+    </nav>
+
+    <!-- 英雄区 -->
+    <section class="hero">
+        <h1 class="hero-title">技术思考与成长</h1>
+        <p class="hero-subtitle">分享编程、设计与生活的点滴，用简约的视角看复杂的世界，在碎片化时代保持深度思考</p>
+    </section>
+
+    <!-- 主内容区 -->
+    <div class="main-container">
+        <!-- 博客列表 -->
+        <section class="blog-list">
+            <!-- 博客卡片1 -->
+            <article class="blog-card">
+                <div class="blog-meta">
+                    <span class="blog-category category-front">前端开发</span>
+                    <span>2025-12-18</span>
+                </div>
+                <h2 class="blog-title"><a href="#">现代CSS变量的高级应用技巧</a></h2>
+                <p class="blog-excerpt">CSS变量（自定义属性）已经成为现代前端开发的必备工具，本文将深入探讨CSS变量的高级应用场景，包括主题切换、响应式设计、动态样式计算等，帮助你写出更简洁、可维护的CSS代码。</p>
+                <a href="#" class="blog-read-more">阅读更多</a>
+            </article>
+
+            <!-- 博客卡片2 -->
+            <article class="blog-card">
+                <div class="blog-meta">
+                    <span class="blog-category category-back">后端开发</span>
+                    <span>2025-12-10</span>
+                </div>
+                <h2 class="blog-title"><a href="#">Node.js性能优化的5个实用方法</a></h2>
+                <p class="blog-excerpt">Node.js作为非阻塞I/O的运行时，在高并发场景下表现优异，但不合理的代码编写仍会导致性能瓶颈。本文分享5个经过实践验证的Node.js性能优化方法，包括内存管理、异步编程优化、缓存策略等。</p>
+                <a href="#" class="blog-read-more">阅读更多</a>
+            </article>
+
+            <!-- 博客卡片3 -->
+            <article class="blog-card">
+                <div class="blog-meta">
+                    <span class="blog-category category-growth">个人成长</span>
+                    <span>2025-12-01</span>
+                </div>
+                <h2 class="blog-title"><a href="#">程序员的极简工作法：少即是多</a></h2>
+                <p class="blog-excerpt">在信息过载的时代，程序员往往陷入多任务处理的陷阱。本文分享极简工作法的核心原则，帮助你聚焦核心任务、减少认知负担、提高工作效率，实现工作与生活的平衡。</p>
+                <a href="#" class="blog-read-more">阅读更多</a>
+            </article>
+        </section>
+
+        <!-- 侧边栏 -->
+        <aside class="sidebar">
+            <!-- 作者信息 -->
+            <div class="sidebar-card author-card">
+                <div class="author-avatar">📝</div>
+                <h3 class="author-name">极简君</h3>
+                <p class="author-bio">全栈开发者，热爱极简设计与高效编程，致力于分享实用的技术与成长经验</p>
+            </div>
+
+            <!-- 分类列表 -->
+            <div class="sidebar-card">
+                <h3 class="sidebar-title">文章分类</h3>
+                <ul class="category-list">
+                    <li class="category-item">
+                        <span>前端开发</span>
+                        <span class="category-count">12</span>
+                    </li>
+                    <li class="category-item">
+                        <span>后端开发</span>
+                        <span class="category-count">8</span>
+                    </li>
+                    <li class="category-item">
+                        <span>个人成长</span>
+                        <span class="category-count">5</span>
+                    </li>
+                    <li class="category-item">
+                        <span>工具推荐</span>
+                        <span class="category-count">3</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- 热门文章 -->
+            <div class="sidebar-card">
+                <h3 class="sidebar-title">热门文章</h3>
+                <ul class="category-list">
+                    <li class="category-item">
+                        <a href="#" style="color: inherit; width: 100%;">现代CSS变量的高级应用技巧</a>
+                    </li>
+                    <li class="category-item">
+                        <a href="#" style="color: inherit; width: 100%;">程序员的极简工作法</a>
+                    </li>
+                    <li class="category-item">
+                        <a href="#" style="color: inherit; width: 100%;">Vue3+Vite项目最佳实践</a>
+                    </li>
+                </ul>
+            </div>
+        </aside>
+    </div>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <p class="footer-text">© 2025 极简博客 保留所有权利</p>
+        <div class="footer-links">
+            <a href="#" class="footer-link">📚 GitHub</a>
+            <a href="#" class="footer-link">🧠 知乎</a>
+            <a href="#" class="footer-link">✉️ 邮箱</a>
+        </div>
+    </footer>
+
+    <script>
+        // 暗黑模式切换
+        const themeToggle = document.getElementById('themeToggle');
+        const html = document.documentElement;
+
+        // 初始化主题
+        if (localStorage.getItem('theme') === 'dark' || 
+            (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            html.classList.add('dark');
+            themeToggle.textContent = '☀️';
+        }
+
+        // 切换主题
+        themeToggle.addEventListener('click', (e) => {
+            // 获取点击位置
+            const x = e.clientX;
+            const y = e.clientY;
+            const r = Math.hypot(
+                Math.max(x, window.innerWidth - x),
+                Math.max(y, window.innerHeight - y)
+            );
+
+            // 设置视图过渡变量
+            html.style.setProperty('--x', `${x}px`);
+            html.style.setProperty('--y', `${y}px`);
+            html.style.setProperty('--r', `${r}px`);
+
+            // 启动视图过渡
+            document.startViewTransition(() => {
+                html.classList.toggle('dark');
+                const isDark = html.classList.contains('dark');
+                localStorage.setItem('theme', isDark ? 'dark' : 'light');
+                themeToggle.textContent = isDark ? '☀️' : '🌙';
+            });
+        });
+
+        // 新增：滚动时导航栏样式变化
+        window.addEventListener('scroll', () => {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 50) {
+                navbar.style.padding = '12px 20px';
+                navbar.style.boxShadow = 'var(--box-shadow-055)';
+            } else {
+                navbar.style.padding = '16px 20px';
+                navbar.style.boxShadow = 'var(--box-shadow-005)';
+            }
+        });
+    </script>
+</body>
+</html>

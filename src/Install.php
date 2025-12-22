@@ -6,11 +6,6 @@ class Install
 {
     const WEBMAN_PLUGIN = true;
 
-    // 安装类
-    protected static $installClass = [
-        "\\plugin\\wbm_blog\\api\\Install",
-    ];
-
     // 应用映射关系
     public static $appRelation = array(
         "wbm_blog" => "plugin/wbm_blog",
@@ -54,7 +49,7 @@ class Install
             }
             //symlink(__DIR__ . "/$source", base_path()."/$dest");
             copy_dir(__DIR__ . "/$source", base_path() . "/$dest");
-            echo "Create $dest";
+            echo "Create $dest\n";
         }
     }
 
@@ -69,7 +64,7 @@ class Install
             if (!is_dir($path) && !is_file($path)) {
                 continue;
             }
-            echo "Remove $dest";
+            echo "Remove $dest\n";
             if (is_file($path) || is_link($path)) {
                 unlink($path);
                 continue;
@@ -98,7 +93,7 @@ class Install
                     }
                 }
                 copy_dir(__DIR__ . "/$source", base_path() . "/$dest");
-                echo "Create app $source";
+                echo "Create app $source\n";
                 if ($old_version) {
                     if (class_exists($install_class) && method_exists($install_class, 'beforeUpdate')) {
                         $context = call_user_func([$install_class, 'beforeUpdate'], $old_version, $new_version);
@@ -111,20 +106,26 @@ class Install
                         call_user_func([$install_class, 'install'], $new_version);
                     }
                 }
-                echo "Install app $source $new_version";
+                echo "Install app $source $new_version\n";
             }
         } catch (\Exception $e) {
             throw new \Exception($e->getMessage());
         }
     }
 
-    public static function uninstallByAppRelation(){
+    public static function uninstallByAppRelation()
+    {
         foreach (static::$appRelation as $source => $dest) {
             $path = base_path() . "/$dest";
+            $install_class = "\\plugin\\$source\\api\\Install";
+            // 卸载应用
+            if (class_exists($install_class) && method_exists($install_class, 'uninstall')) {
+                call_user_func([$install_class, 'uninstall'], static::newVersion($source));
+            }
             if (!is_dir($path) && !is_file($path)) {
                 continue;
             }
-            echo "Remove $dest";
+            echo "Remove $dest\n";
             if (is_file($path) || is_link($path)) {
                 unlink($path);
                 continue;

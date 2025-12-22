@@ -22,6 +22,7 @@ class Install
      */
     public static function install($version)
     {
+        echo "api Install wbm_blog $version\n";
         // 安装数据库
         static::installSql();
         // 导入菜单
@@ -56,6 +57,7 @@ class Install
      */
     public static function update($from_version, $to_version, $context = null)
     {
+        echo "api Update wbm_blog $from_version to $to_version\n";
         // 删除不用的菜单
         if (isset($context['previous_menus'])) {
             static::removeUnnecessaryMenus($context['previous_menus']);
