@@ -1,6 +1,6 @@
 <?php
 
-namespace plugin\wbm_blog\app\controller;
+namespace plugin\wbm_blog\app\index\controller;
 
 use support\Request;
 
